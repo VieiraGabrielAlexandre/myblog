@@ -1,0 +1,79 @@
+# ======================
+# Python (Lambdas)
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+*.out
+*.err
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+
+# Cache / tooling
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.pyre/
+.coverage
+coverage.xml
+htmlcov/
+
+# ======================
+# Terraform
+# ======================
+*.tfstate
+*.tfstate.*
+.crash
+.terraform/
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Se usar tfvars locais (NUNCA commitar senhas/tokens)
+*.tfvars
+*.tfvars.json
+
+# ======================
+# Build artifacts (Lambdas, Frontend)
+# ======================
+build/
+dist/
+*.zip
+
+# Frontend gerado (apenas subir para S3, não versionar)
+public/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ======================
+# IDE / Editor
+# ======================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ======================
+# AWS / Credenciais
+# ======================
+.aws/
+*.pem
+*.key
+*.crt
+.env
+*.env.*

@@ -1,0 +1,41 @@
+# ============================
+# Default end-of-line handling
+# ============================
+* text=auto eol=lf
+
+# ============================
+# Language hints (GitHub Linguist)
+# ============================
+*.tf linguist-language=HCL
+*.html linguist-language=HTML
+*.css linguist-language=CSS
+*.js linguist-language=JavaScript
+*.py linguist-language=Python
+
+# ============================
+# Binary files (don't diff)
+# ============================
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# ============================
+# Docs / Markdown
+# ============================
+*.md text
+LICENSE text
+README.md text
+
+# ============================
+# Special cases
+# ============================
+# Terraform lockfile — keep as LF always
+.terraform.lock.hcl text eol=lf
