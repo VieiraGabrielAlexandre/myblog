@@ -14,3 +14,7 @@ aws cloudfront create-invalidation \
 
 
 token do create post: pfmwe2n439r8723nnefds
+
+dist id: EE8FTMX1X5KK6
+
+aws cloudfront create-invalidation --distribution-id EE8FTMX1X5KK6 --paths "/*"

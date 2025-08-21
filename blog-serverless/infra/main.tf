@@ -141,9 +141,16 @@ resource "aws_apigatewayv2_api" "api" {
   cors_configuration {
     allow_headers = ["content-type", "authorization"]
     allow_methods = ["GET", "POST", "OPTIONS"]
-    allow_origins = ["*"] # depois troque pelo seu domínio
+    allow_origins = ["https://d3ulh4f5ptvhiz.cloudfront.net"]
   }
 }
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.api.id
+  name        = "$default"
+  auto_deploy = true
+}
+
 
 # Integrações
 resource "aws_apigatewayv2_integration" "i_get_posts" {
@@ -188,13 +195,6 @@ resource "aws_lambda_permission" "p_create_comment" {
   function_name = aws_lambda_function.create_comment.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
-}
-
-# Stage default para publicar as rotas automaticamente
-resource "aws_apigatewayv2_stage" "default" {
-  api_id      = aws_apigatewayv2_api.api.id
-  name        = "$default"
-  auto_deploy = true
 }
 
 # --- Lambda: GET /api/posts/{slug} ---
@@ -259,12 +259,6 @@ resource "aws_apigatewayv2_integration" "i_create_post" {
   payload_format_version = "2.0"
 }
 
-resource "aws_apigatewayv2_route" "r_create_post" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /api/posts"
-  target    = "integrations/${aws_apigatewayv2_integration.i_create_post.id}"
-}
-
 resource "aws_lambda_permission" "p_create_post" {
   statement_id  = "AllowInvokeCreatePost"
   action        = "lambda:InvokeFunction"
@@ -277,9 +271,35 @@ resource "aws_lambda_permission" "p_create_post" {
 variable "admin_token" {
   description = "Token simples para publicar posts via header X-ADMIN-TOKEN"
   type        = string
-  default     = ""  # defina via -var ou tfvars
+  default     = "" # defina via -var ou tfvars
 }
 
+# Authorizer JWT (Cognito)
+resource "aws_apigatewayv2_authorizer" "cognito" {
+  api_id           = aws_apigatewayv2_api.api.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-jwt"
+
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.app.id]
+    issuer   = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.blog.id}"
+  }
+}
+
+
+# Proteger apenas o POST /api/posts
+resource "aws_apigatewayv2_route" "r_create_post" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "POST /api/posts"
+  target    = "integrations/${aws_apigatewayv2_integration.i_create_post.id}"
+
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+
+  # Se quiser exigir escopos (opcional, se você definir no app client):
+  # authorization_scopes = ["openid", "email"]
+}
 
 
 # Saídas
