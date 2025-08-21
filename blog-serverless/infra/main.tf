@@ -301,6 +301,53 @@ resource "aws_apigatewayv2_route" "r_create_post" {
   # authorization_scopes = ["openid", "email"]
 }
 
+# Lambda: GET comments
+resource "aws_lambda_function" "get_comments" {
+  function_name = "blog-get-comments"
+  role          = aws_iam_role.lambda_role.arn
+  runtime       = "python3.12"
+  handler       = "app.handler"
+  filename      = "../build/lambda_get_comments.zip"
+
+  environment {
+    variables = {
+      COMMENTS_TABLE = aws_dynamodb_table.comments.name
+    }
+  }
+}
+
+# Integrações para as duas formas de rota:
+resource "aws_apigatewayv2_integration" "i_get_comments" {
+  api_id                 = aws_apigatewayv2_api.api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.get_comments.arn
+  payload_format_version = "2.0"
+}
+
+# GET /api/comments?slug=...
+resource "aws_apigatewayv2_route" "r_get_comments_query" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /api/comments"
+  target    = "integrations/${aws_apigatewayv2_integration.i_get_comments.id}"
+}
+
+# GET /api/posts/{slug}/comments (RESTful junto do POST existente)
+resource "aws_apigatewayv2_route" "r_get_comments_postslug" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /api/posts/{slug}/comments"
+  target    = "integrations/${aws_apigatewayv2_integration.i_get_comments.id}"
+}
+
+# Permissões
+resource "aws_lambda_permission" "p_get_comments" {
+  statement_id  = "AllowInvokeGetComments"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_comments.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+}
+
+
 
 # Saídas
 output "api_url" {

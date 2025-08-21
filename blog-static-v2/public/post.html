@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-br" data-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post — Meu Blog</title>
+  <link rel="icon" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img src="favicon.svg" alt="logo" class="logo" />
+        <h1><a class="nav-link" href="index.html">Meu Blog</a></h1>
+      </div>
+      <nav class="nav">
+        <button id="themeToggle" class="btn small secondary" type="button">🌓</button>
+      </nav>
+    </div>
+  </header>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <main class="container article">
+    <article id="article"></article>
+
+    <section class="comments">
+      <h3>Comentários</h3>
+      <div id="commentsList" class="comments-list"></div>
+      <button id="moreComments" class="btn secondary" type="button" hidden>Carregar mais</button>
+
+      <h3 style="margin-top:1rem;">Comentar</h3>
+      <form id="commentForm" class="comment-form"> ... </form>
+    </section>
+
+    <section class="comments">
+      <h3>Comentar</h3>
+      <form id="commentForm" class="comment-form">
+        <input type="text" name="author" placeholder="Seu nome" autocomplete="name" required>
+        <input type="email" name="email" placeholder="Seu e-mail (opcional)" autocomplete="email">
+        <textarea name="content" placeholder="Escreva um comentário..." required></textarea>
+        <div class="row">
+          <button class="btn" type="submit">Enviar comentário</button>
+          <span id="status" class="status"></span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Meu Blog</span>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="utils.js"></script>
+  <script src="post.js"></script>
+</body>
+
+</html>

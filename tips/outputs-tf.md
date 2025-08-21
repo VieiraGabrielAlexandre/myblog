@@ -18,3 +18,11 @@ token do create post: pfmwe2n439r8723nnefds
 dist id: EE8FTMX1X5KK6
 
 aws cloudfront create-invalidation --distribution-id EE8FTMX1X5KK6 --paths "/*"
+
+AWS_REGION=sa-east-1
+STATE_BUCKET=myblog-backend
+
+aws s3api create-bucket \
+  --bucket "$STATE_BUCKET" \
+  --region "$AWS_REGION" \
+  --create-bucket-configuration LocationConstraint="$AWS_REGION"
