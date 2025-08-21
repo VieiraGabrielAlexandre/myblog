@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Publicar Post</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    textarea {
+      min-height: 150px;
+    }
+    button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      background: #0073bb;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005f99;
+    }
+    .response {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 5px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .success {
+      background: #e6ffed;
+      border: 1px solid #00a152;
+    }
+    .error {
+      background: #ffe6e6;
+      border: 1px solid #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Publicar Post</h1>
+
+  <form id="postForm">
+    <label for="apiUrl">API URL</label>
+    <input type="text" id="apiUrl" placeholder="https://xxxxxx.execute-api.sa-east-1.amazonaws.com" required>
+
+    <label for="token">Admin Token</label>
+    <input type="password" id="token" placeholder="Seu X-ADMIN-TOKEN" required>
+
+    <label for="title">Título</label>
+    <input type="text" id="title" required>
+
+    <label for="author">Autor</label>
+    <input type="text" id="author" value="Gabriel Vieira" required>
+
+    <label for="tags">Tags (separadas por vírgula)</label>
+    <input type="text" id="tags" placeholder="aws, serverless, blog">
+
+    <label for="status">Status</label>
+    <select id="status">
+      <option value="published">Publicado</option>
+      <option value="draft">Rascunho</option>
+    </select>
+
+    <label for="content">Conteúdo</label>
+    <textarea id="content" required></textarea>
+
+    <button type="submit">🚀 Publicar</button>
+  </form>
+
+  <div id="response" class="response"></div>
+
+  <script>
+    document.getElementById("postForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const apiUrl = document.getElementById("apiUrl").value.trim();
+      const token = document.getElementById("token").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+      const tags = document.getElementById("tags").value.split(",").map(t => t.trim()).filter(t => t);
+      const status = document.getElementById("status").value;
+      const content = document.getElementById("content").value.trim();
+
+      const payload = { title, author, tags, status, content };
+
+      try {
+        const res = await fetch(`${apiUrl}/api/posts`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-ADMIN-TOKEN": token
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        const responseDiv = document.getElementById("response");
+
+        if (res.ok) {
+          responseDiv.className = "response success";
+          responseDiv.textContent = "✅ Post publicado com sucesso!\n\n" + JSON.stringify(data, null, 2);
+        } else {
+          responseDiv.className = "response error";
+          responseDiv.textContent = "❌ Erro ao publicar:\n\n" + JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        const responseDiv = document.getElementById("response");
+        responseDiv.className = "response error";
+        responseDiv.textContent = "❌ Erro de conexão: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

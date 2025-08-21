@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-br" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meu Blog Serverless</title>
+  <meta name="description" content="Blog estático em S3 com backend serverless.">
+  <link rel="icon" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <img src="favicon.svg" alt="logo" class="logo" />
+        <h1>Meu Blog</h1>
+      </div>
+      <nav class="nav">
+        <a href="index.html" class="nav-link active">Início</a>
+        <a target="_blank" rel="noopener" href="https://aws.amazon.com/">AWS</a>
+        <button id="themeToggle" class="btn small secondary" type="button" aria-label="Alternar tema">🌓</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h2>Publicações</h2>
+      <p class="sub">Conteúdo servido do S3 + CloudFront. Dados via API Gateway + Lambda + DynamoDB.</p>
+    </section>
+
+    <section class="filters">
+      <input id="search" class="input" type="search" placeholder="Buscar por título/autor…" aria-label="Busca">
+      <input id="tag" class="input" type="text" placeholder="Filtrar por #tags (ex: aws, serverless)" aria-label="Filtro por tags">
+      <button id="applyFilters" class="btn" type="button">Filtrar</button>
+      <button id="clearFilters" class="btn secondary" type="button">Limpar</button>
+    </section>
+
+    <section id="posts" class="posts-grid" aria-live="polite"></section>
+
+    <div class="actions">
+      <button id="btnMore" class="btn" disabled>Carregar mais</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Meu Blog</span>
+      <span class="muted">Feito com ♥ na AWS</span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="utils.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
