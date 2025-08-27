@@ -54,7 +54,7 @@
       <h1>${escapeHtml(title)}</h1>
       <p class="lead">${published ? `📅 ${published}` : ""} ${author ? ` · ✍️ ${escapeHtml(author)}` : ""}</p>
       ${Array.isArray(p.tags) && p.tags.length ? `<div class="tags" style="margin:.5rem 0 1rem">${p.tags.map(t => `<span class="tag">#${escapeHtml(String(t))}</span>`).join("")}</div>` : ""}
-      <div class="prose">${(p.content || "").replace(/\n/g, "<br>")}</div>
+      <div class="prose">${DOMPurify.sanitize(marked.parse(p.content || ""))}</div>
     `;
     document.title = `${escapeHtml(title)} — Meu Blog`;
   }
