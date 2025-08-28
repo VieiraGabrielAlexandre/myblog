@@ -39,10 +39,12 @@ resource "aws_dynamodb_table" "posts" {
 
 # DynamoDB: comments
 resource "aws_dynamodb_table" "comments" {
-  name         = "blog-comments"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "pk"
-  range_key    = "sk"
+  name           = "blog-comments"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "pk"
+  range_key      = "sk"
 
   attribute {
     name = "pk"
@@ -52,6 +54,29 @@ resource "aws_dynamodb_table" "comments" {
   attribute {
     name = "sk"
     type = "S"
+  }
+}
+
+resource "aws_appautoscaling_target" "comments_rcu" {
+  max_capacity       = 100
+  min_capacity       = 5
+  resource_id        = "table/${aws_dynamodb_table.comments.name}"
+  scalable_dimension = "dynamodb:table:ReadCapacityUnits"
+  service_namespace  = "dynamodb"
+}
+
+resource "aws_appautoscaling_policy" "comments_rcu_policy" {
+  name               = "comments-rcu"
+  policy_type        = "TargetTrackingScaling" # <-- aqui
+  resource_id        = aws_appautoscaling_target.comments_rcu.resource_id
+  scalable_dimension = aws_appautoscaling_target.comments_rcu.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.comments_rcu.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value = 70
+    predefined_metric_specification {
+      predefined_metric_type = "DynamoDBReadCapacityUtilization"
+    }
   }
 }
 
@@ -131,6 +156,7 @@ resource "aws_lambda_function" "create_comment" {
       COMMENTS_TABLE = aws_dynamodb_table.comments.name
     }
   }
+
 }
 
 # API Gateway HTTP API
@@ -149,6 +175,47 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
   auto_deploy = true
+
+  # Limite padrão (fallback)
+  default_route_settings {
+    throttling_burst_limit = 50
+    throttling_rate_limit  = 25 # req/s
+  }
+
+  # GET /api/posts (lista)
+  route_settings {
+    route_key              = "GET /api/posts"
+    throttling_burst_limit = 20
+    throttling_rate_limit  = 10
+  }
+
+  # GET /api/posts/{slug} (detalhe)
+  route_settings {
+    route_key              = "GET /api/posts/{slug}"
+    throttling_burst_limit = 20
+    throttling_rate_limit  = 10
+  }
+
+  # GET /api/comments
+  route_settings {
+    route_key              = "GET /api/comments"
+    throttling_burst_limit = 10
+    throttling_rate_limit  = 5
+  }
+
+  # POST /api/posts/{slug}/comments
+  route_settings {
+    route_key              = "POST /api/posts/{slug}/comments"
+    throttling_burst_limit = 5
+    throttling_rate_limit  = 2
+  }
+
+  # POST /api/posts  (admin)
+  route_settings {
+    route_key              = "POST /api/posts"
+    throttling_burst_limit = 3
+    throttling_rate_limit  = 1
+  }
 }
 
 
@@ -249,6 +316,7 @@ resource "aws_lambda_function" "create_post" {
       ADMIN_TOKEN = var.admin_token
     }
   }
+
 }
 
 # Integração e rota
