@@ -1,6 +1,3 @@
-# 📄 README.md
-
-```markdown
 # 📰 Blog Serverless na AWS
 
 Este projeto implementa um **blog completo e simples**, totalmente **serverless**, utilizando **AWS + Terraform**.
@@ -12,14 +9,9 @@ Este projeto implementa um **blog completo e simples**, totalmente **serverless*
 ---
 
 ## 🚀 Arquitetura
-
-```
-
 Usuário → CloudFront → S3 (frontend)
 ↓
 API Gateway → Lambda → DynamoDB
-
-```
 
 - **S3**: Hospeda arquivos estáticos do frontend  
 - **CloudFront**: CDN global, entrega rápida + HTTPS  
@@ -174,12 +166,4 @@ aws cloudfront create-invalidation \
 
 ---
 
-## 📌 Próximos Passos (Sugestões)
-
-* Criar página **admin.html** para facilitar publicação de posts via navegador
-* Autenticação com **Cognito** (substituir token simples)
-* Deploy automático via **GitHub Actions** (Terraform + S3 sync)
-* Suporte a **comentários** no frontend (`/api/comments`)
-
-
-```
+Para visualizar meu blog: https://d3ulh4f5ptvhiz.cloudfront.net/
