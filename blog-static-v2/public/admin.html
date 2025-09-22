@@ -76,8 +76,10 @@
     <label for="apiUrl">API URL</label>
     <input type="text" id="apiUrl" placeholder="https://xxxxxx.execute-api.sa-east-1.amazonaws.com" required>
 
-    <label for="token">Admin Token</label>
-    <input type="password" id="token" placeholder="Seu X-ADMIN-TOKEN" required>
+    <label for="jwt">JWT Cognito</label>
+    <input type="password" id="jwt" placeholder="Cole aqui o JWT Cognito" required>
+
+    <button type="button" id="loginCognito" style="background:#f5f5f5;color:#222;border:1px solid #aaa;">Login Cognito</button>
 
     <label for="title">Título</label>
     <input type="text" id="title" required>
@@ -100,14 +102,35 @@
     <button type="submit">🚀 Publicar</button>
   </form>
 
-  <div id="response" class="response"></div>
-
+<div id="response" class="response"></div>
+  <script src="config.js"></script>
   <script>
+    // Cognito Hosted UI config
+    const COGNITO_DOMAIN = window.__CONFIG__.COGNITO_DOMAIN;
+    const CLIENT_ID = window.__CONFIG__.COGNITO_CLIENT_ID;
+    const REDIRECT_URI = window.location.origin + window.location.pathname;
+    const LOGIN_URL = `${COGNITO_DOMAIN}/login?client_id=${CLIENT_ID}&response_type=token&scope=openid+email&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+
+    // Botão para abrir Hosted UI Cognito
+    document.getElementById("loginCognito").onclick = () => {
+      window.location.href = LOGIN_URL;
+    };
+
+    // Se voltou do Cognito, extrai o token da URL
+    if (window.location.hash.includes("id_token=") || window.location.hash.includes("access_token=")) {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      const token = params.get("id_token") || params.get("access_token");
+      if (token) {
+        document.getElementById("jwt").value = token;
+        window.location.hash = ""; // limpa hash
+      }
+    }
+
     document.getElementById("postForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const apiUrl = document.getElementById("apiUrl").value.trim();
-      const token = document.getElementById("token").value.trim();
+      const jwt = document.getElementById("jwt").value.trim();
       const title = document.getElementById("title").value.trim();
       const author = document.getElementById("author").value.trim();
       const tags = document.getElementById("tags").value.split(",").map(t => t.trim()).filter(t => t);
@@ -121,7 +144,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-ADMIN-TOKEN": token
+            "Authorization": "Bearer " + jwt
           },
           body: JSON.stringify(payload)
         });
@@ -143,5 +166,6 @@
       }
     });
   </script>
+
 </body>
 </html>

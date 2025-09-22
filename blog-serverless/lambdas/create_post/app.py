@@ -65,7 +65,7 @@ def handler(event, context):
         "tags": tags,
         "coverUrl": cover,
         "status": status,
-        "publishedAt": now if status == "published" else None,
+        "publishedAt": now,
         "updatedAt": now,
     }
 
